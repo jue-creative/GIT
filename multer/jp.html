@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced File Upload with Preview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif; 
+            max-width: 400px;
+            margin: 40px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        .preview-box {
+            margin-top: 30px;
+            display: none;
+            text-align: center;
+        }
+        .preview-box img {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <form id="uploadForm">
+        <h2>File Upload Form</h2>
+        <p><input type="text" id="username" name="username" placeholder="Username" required/></p>
+        <p><input type="file" id="profilePic" name="profilePic" accept="image/*" required /></p>
+        <p><button type="submit">Upload</button></p>
+    </form>
+
+    <div class="preview-box" id="previewBox">
+        <p class="success-msg" style="color: green; font-weight: bold;">Successfully Upload.</p>
+        <img id="uploadedImage" src="" alt="uploaded Preview" />
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const previewBox = document.getElementById('previewBox');
+        const uploadedImage = document.getElementById('uploadedImage');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('username', document.getElementById('username').value);
+            formData.append('profilePic', document.getElementById('profilePic').files[0]);
+
+            try {
+                const response = await fetch('http://localhost:2005/upload-secure', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+
+                if (response.ok) {
+                    uploadedImage.src = data.imageUrl;
+                    previewBox.style.display = 'block';
+                } else { 
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Server is not connected!');
+            }
+        });
+    </script>
+</body>
+</html>
